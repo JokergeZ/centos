@@ -24,8 +24,7 @@ class Groups(Resource):
                 id = row['id']
                 id_faculty = row['ID_FACULTY']
                 name = row['TITLE']
-                url = row['URL']
-                self.groups_list.append({'id': id, 'id_faculty': id_faculty, 'name': name, 'url': url})
+                self.groups_list.append({'id': id, 'id_faculty': id_faculty, 'name': name})
 
             conn.close()
         except Exception as e:
