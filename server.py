@@ -23,7 +23,7 @@ class Groups(Resource):
             for row in cursor:
                 id = row['id']
                 id_faculty = row['ID_FACULTY']
-                name = row['TITLE']
+                name = row['title']
                 self.groups_list.append({'id': id, 'id_faculty': id_faculty, 'name': name})
 
             conn.close()
@@ -169,6 +169,39 @@ class Times(Resource):
         except Exception as e:
             print(str(e))
 
+class Schedule(Resource):
+    schedule_list = []
+
+    def get(self):
+        self.schedule_list.clear()
+        self.load_schedule()
+        return self.schedule_list
+
+    def load_schedule(self):
+        try:
+            conn = psycopg2.connect(host='localhost', user='postgres', password='123', dbname='institut', port = '5432')
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            cursor.execute('SELECT days.name AS days_name, times.time AS times_time, disciplines.name AS disciplines_name, teachers.fio AS teachers_fio, rooms.num AS rooms_num, groups.title AS groups_title FROM schedule '
+                            'JOIN days ON days.id = schedule.id_day '
+                            'JOIN times ON times.id = schedule.id_time '
+                            'JOIN disciplines ON disciplines.id = schedule.id_discipline '
+                            'JOIN teachers ON teachers.id = schedule.id_teacher '
+                            'JOIN rooms ON rooms.id = schedule.id_room '
+                            'JOIN groups ON groups.id = schedule.id_group')
+            for row in cursor:
+                days_name = row['days_name']
+                times_time = row['times_time']
+                disciplines_name = row['disciplines_name']
+                teachers_fio = row['teachers_fio']
+                rooms_num = row['rooms_num']
+                groups_title = row['groups_title']
+                self.schedule_list.append({'days_name': days_name, 'times_time': times_time, 'disciplines_name': disciplines_name, 'teachers_fio': teachers_fio, 'rooms_num': rooms_num, 'groups_title': groups_title,})
+
+            conn.close()
+        except Exception as e:
+            print(str(e))
+
 api.add_resource(Groups, '/groups')
 api.add_resource(Faculties, '/faculties')
 api.add_resource(Disciplines, '/disciplines')
@@ -176,6 +209,7 @@ api.add_resource(Days, '/days')
 api.add_resource(Rooms, '/rooms')
 api.add_resource(Teachers, '/teachers')
 api.add_resource(Times, '/times')
+api.add_resource(Schedule, '/schedule')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
